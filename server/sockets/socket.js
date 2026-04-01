@@ -3,9 +3,15 @@ module.exports = (io) => {
   io.on("connection", (socket) => {
     console.log("User connected:", socket.id);
 
-    // Listen for code changes
-    socket.on("code-change", (code) => {
-      socket.broadcast.emit("code-update", code);
+    // Join Room
+    socket.on("join-room", (roomId) => {
+      socket.join(roomId);
+      console.log(`User ${socket.id} joined room ${roomId}`);
+    });
+
+    // Code Change (ROOM BASED)
+    socket.on("code-change", ({ roomId, code }) => {
+      socket.to(roomId).emit("code-update", code);
     });
 
     // Disconnect
