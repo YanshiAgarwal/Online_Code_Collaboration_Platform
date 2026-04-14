@@ -25,7 +25,7 @@ function HomePage() {
                 <input 
                   type="text"
                   className="form-control mb-2"
-                  placeholder="UserName"
+                  placeholder="Username"
                 /> 
               </div>
               <button className="btn btn-success btn-lg btn-block">JOIN</button>
