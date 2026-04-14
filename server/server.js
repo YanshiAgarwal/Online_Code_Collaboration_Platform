@@ -1,83 +1,45 @@
-// const express = require("express");
-// const http = require("http");
-// const { Server } = require("socket.io");
-// const cors = require("cors");
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
+const cors = require("cors");
+const dotenv = require("dotenv");
 
-// // Import routes
-// const roomRoutes = require("./src/routes/roomRoutes");
-
-// // Import socket handler
-// const socketHandler = require("./src/socket/socketHandler");
-
-// const app = express();
-// app.use(cors());
-
-// // Routes
-// app.use("/api/room", roomRoutes);
-
-// const server = http.createServer(app);
-
-// const io = new Server(server, {
-//   cors: {
-//     origin: "*",
-//   },
-// });
-
-// // Use socket logic
-// socketHandler(io);
-
-// // Start server
-// server.listen(5000, () => {
-//   console.log("Server running on port 5000");
-// });
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const compilerRoutes = require('./src/routes/compilerRoutes');
-const roomRoutes = require('./src/routes/roomRoutes');
-const { handleSocketConnection } = require('./src/socket/socketHandler');
-
-// Environment configuration
+// Load environment variables from .env file
 dotenv.config();
 
-// Functions to initialize server components
-function initializeServer() {
-    const app = express();
-    const server = http.createServer(app);
-    const io = new Server(server, {
-        cors: {
-            origin: '*', // For development, allow all origins
-            methods: ['GET', 'POST'],
-        },
-    });
+const path = require("path");
 
-    // Middlewares
-    app.use(cors());
-    app.use(express.json());
+// Import our modules
+const compilerRoutes = require("./src/routes/compilerRoutes");
+const { handleSocketConnection } = require("./src/socket/socketHandler");
+const app = express();
+const server = http.createServer(app);
 
-    // API Routes
-    app.use('/compile', compilerRoutes);
-    app.use('/api/room', roomRoutes);
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+    },
+});
 
-    // Socket Connections
-    io.on('connection', (socket) => {
-        handleSocketConnection(io, socket);
-    });
+//Add middlewares
+app.use(cors());           // Allow cross-origin requests from React (port 3000 → port 5000)
+app.use(express.json());   
 
-    // Global error handler
-    app.use((err, req, res, next) => {
-        console.error('Server error:', err.stack);
-        res.status(500).json({ error: 'Internal server error' });
-    });
+app.use("/compile", compilerRoutes);
 
-    return { server };
-}
+//Serve the React frontend build 
+app.use(express.static(path.join(__dirname, "..", "client", "build")));
 
-// Start the server
-const { server } = initializeServer();
-const PORT = process.env.PORT || 5001;
+app.get("/{*splat}", (req, res) => {
+    res.sendFile(path.join(__dirname, "..", "client", "build", "index.html"));
+});
+// When a user connects via WebSocket, call our handler
+io.on("connection", (socket) => {
+    handleSocketConnection(io, socket);
+});
+
+//Start the server
+const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
