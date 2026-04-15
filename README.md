@@ -1,216 +1,231 @@
-# 💻 Online Code Collaboration Platform (Live Editor)
+# Online Code Collaboration Platform
 
-A real-time collaborative coding platform where multiple users can **write, edit, and execute code together instantly** — similar to Google Docs but for programming.
+A full-stack MERN application for collaborative coding in shared rooms. Multiple users can join the same room, edit code together in real time with Socket.IO, and compile code through the Wandbox API.
 
----
-
-## 🚀 Features
-
-* 👥 Real-time multi-user code collaboration
-* 📝 Live code editor with syntax highlighting (CodeMirror with Dracula theme)
-* 🔗 Create & join coding rooms via shareable Room ID
-* 🔄 Instant code synchronization across all users in a room
-* 💻 Code execution supporting 16 programming languages
-* 📋 One-click Room ID copy to clipboard
-* 🔔 Toast notifications for user join/leave events
-* 🎨 Auto-generated user avatars
-
----
-
-## 🏗️ Tech Stack
+## Tech Stack
 
 ### Frontend
-
-* React.js 18
-* CodeMirror 5 (Dracula theme)
-* Socket.IO Client
-* Bootstrap 5
-* React Router v6
-* React Hot Toast
-* React Avatar
+- React.js
+- Monaco Editor via `@monaco-editor/react`
+- React Router
+- Socket.IO Client
+- Axios
+- React Hot Toast
+- React Avatar
+- Bootstrap
 
 ### Backend
-
-* Node.js
-* Express.js 5
-* Socket.IO
-* Axios
+- Node.js
+- Express.js
+- Socket.IO
+- MongoDB with Mongoose
+- Axios
+- dotenv
+- cors
 
 ### Code Execution
+- Wandbox API
 
-* Wandbox API (free, no API key required)
+## Features
+- Real-time collaborative coding with Socket.IO
+- Create unique rooms from the backend
+- Join existing rooms with a room ID
+- Monaco Editor for code editing
+- Live list of connected users per room
+- Shared language selection across collaborators
+- Code compilation and execution
+- Compiler errors, program errors, and output panels
+- MongoDB room persistence for latest code and language state
 
----
+## Folder Structure
 
-## 💻 Supported Languages
-
-| Language | Language | Language | Language |
-|----------|----------|----------|----------|
-| Python 3 | Java | C++ | C |
-| Node.js | Ruby | Go | Rust |
-| PHP | Swift | C# | Scala |
-| Bash | SQL | Pascal | R |
-
----
-
-## 🧠 Project Architecture
-
-```
-Client (React + CodeMirror)
-        │
-        │ WebSocket (Socket.IO) + HTTP (Axios)
-        ▼
-Backend (Node.js + Express)
-        │
-        ├── Socket.IO ──→ Real-time code sync, user join/leave
-        │
-        ├── POST /compile ──→ Wandbox API (Code Execution)
-        │
-        └── Static file serving (React build for deployment)
-```
-
----
-
-## 📁 Project Structure
-
-```
+```text
 Online_Code_Collaboration_Platform/
-│
-├── client/                          # React frontend
-│   ├── public/
-│   │   └── images/                  # Logo assets
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── Home.js              # Landing page (create/join room)
-│   │   │   ├── EditorPage.js        # Main collaboration page
-│   │   │   ├── Editor.js            # CodeMirror editor wrapper
-│   │   │   └── Client.js            # User avatar component
-│   │   ├── App.js                   # Route definitions
-│   │   ├── Socket.js                # Socket.IO connection setup
-│   │   ├── Actions.js               # Socket event constants
-│   │   └── index.js                 # Entry point
-│   └── .env                         # REACT_APP_BACKEND_URL
-│
-├── server/                          # Node.js backend
-│   ├── src/
-│   │   ├── controllers/
-│   │   │   └── compilerController.js  # Code execution via Wandbox API
-│   │   ├── routes/
-│   │   │   └── compilerRoutes.js      # POST /compile route
-│   │   ├── socket/
-│   │   │   └── socketHandler.js       # Real-time event handling
-│   │   └── utils/
-│   │       └── action.js             # Socket event constants
-│   ├── server.js                    # Main server entry point
-│   └── .env                         # PORT=5000
-│
-└── README.md
+|-- client/
+|   |-- public/
+|   |-- src/
+|   |   |-- components/
+|   |   |   |-- Client.js
+|   |   |   |-- Editor.js
+|   |   |   `-- EditorPage.js
+|   |   |-- Actions.js
+|   |   |-- App.css
+|   |   |-- App.js
+|   |   |-- Socket.js
+|   |   |-- index.css
+|   |   `-- index.js
+|   |-- .env.example
+|   `-- package.json
+|-- server/
+|   |-- src/
+|   |   |-- config/
+|   |   |   `-- db.js
+|   |   |-- controllers/
+|   |   |   |-- compilerController.js
+|   |   |   `-- roomController.js
+|   |   |-- models/
+|   |   |   `-- Room.js
+|   |   |-- routes/
+|   |   |   |-- compilerRoutes.js
+|   |   |   `-- roomRoutes.js
+|   |   |-- services/
+|   |   |   `-- roomService.js
+|   |   |-- socket/
+|   |   |   `-- socketHandler.js
+|   |   `-- utils/
+|   |       `-- action.js
+|   |-- .env.example
+|   |-- package.json
+|   `-- server.js
+`-- README.md
 ```
 
----
+## Required Dependencies
 
-## ⚙️ Installation & Setup
+### Client dependencies
+- `@monaco-editor/react`
+- `axios`
+- `bootstrap`
+- `react`
+- `react-avatar`
+- `react-dom`
+- `react-hot-toast`
+- `react-router-dom`
+- `react-scripts`
+- `socket.io-client`
 
-### 1️⃣ Clone the repository
+### Server dependencies
+- `axios`
+- `cors`
+- `dotenv`
+- `express`
+- `mongoose`
+- `socket.io`
+- `nodemon` as a dev dependency
+
+## Environment Variables
+
+### `server/.env`
+
+```env
+PORT=5000
+CLIENT_URL=http://localhost:3000
+MONGODB_URI=mongodb://127.0.0.1:27017/codecollab
+MONGODB_DB_NAME=codecollab
+```
+
+### `client/.env`
+
+```env
+REACT_APP_API_BASE_URL=http://localhost:5000/api
+REACT_APP_SOCKET_URL=http://localhost:5000
+```
+
+## Step-by-Step Setup
+
+1. Clone the repository.
 
 ```bash
-git clone https://github.com/YanshiAgarwal/Online_Code_Collaboration_Platform.git
-cd Online-Code-Collaboration-Platform
+git clone <your-repository-url>
+cd Online_Code_Collaboration_Platform
 ```
 
-### 2️⃣ Setup Backend
+2. Install backend dependencies.
 
 ```bash
 cd server
 npm install
-npm start
 ```
 
-You should see: `Server is running on port 5000`
+3. Create the backend environment file.
 
-### 3️⃣ Setup Frontend
+```bash
+# macOS / Linux
+cp .env.example .env
 
-Open a **new terminal**:
+# Windows PowerShell
+Copy-Item .env.example .env
+```
+
+4. Make sure MongoDB is running locally, or update `MONGODB_URI` to point to your MongoDB Atlas cluster.
+
+5. Start the backend server.
+
+```bash
+npm run dev
+```
+
+6. Open a new terminal and install frontend dependencies.
 
 ```bash
 cd client
 npm install
+```
+
+7. Create the frontend environment file.
+
+```bash
+# macOS / Linux
+cp .env.example .env
+
+# Windows PowerShell
+Copy-Item .env.example .env
+```
+
+8. Start the React frontend.
+
+```bash
 npm start
 ```
 
-The app will open at `http://localhost:3000`
+9. Open `http://localhost:3000` in your browser.
 
----
+## How It Works
 
-## 🔌 Environment Variables
+1. A user creates a room from the home screen.
+2. The backend generates a unique room ID and stores it in MongoDB.
+3. Other collaborators join using the same room ID.
+4. Socket.IO places every user inside the same room channel.
+5. Monaco Editor changes are broadcast to all collaborators in real time.
+6. The latest room code and selected language are persisted in MongoDB.
+7. Users run code through the compile API, which forwards the request to Wandbox.
+8. Output, runtime errors, and compiler errors are displayed in separate panels.
 
-### Client (`client/.env`)
+## API Endpoints
 
-```
-# For local development:
-REACT_APP_BACKEND_URL=http://localhost:5000
+### Room APIs
+- `POST /api/rooms` creates a unique room
+- `GET /api/rooms/:roomId` fetches persisted room state
 
-# For ngrok deployment (leave empty):
-REACT_APP_BACKEND_URL=
-```
+### Compile API
+- `POST /api/compile` compiles and executes code
 
-### Server (`server/.env`)
+Request body:
 
-```
-PORT=5000
-```
-
----
-
-## 📡 Socket Events
-
-| Event | Direction | Purpose |
-|-------|-----------|---------|
-| `join` | Client → Server | User wants to join a room |
-| `joined` | Server → Client | Notify all users that someone joined (includes client list) |
-| `code-change` | Both ways | Sync code changes in real-time |
-| `sync-code` | Client → Server | New user requests current code from existing users |
-| `disconnected` | Server → Client | Notify all users that someone left |
-
----
-
-## 🔄 User Flow
-
-```
-1. User visits the home page (/)
-2. Enters a username
-3. Either pastes an existing Room ID or clicks "New Room" to generate one
-4. Clicks JOIN → navigated to /editor/:roomId
-5. Socket connects → joins the room → all users notified
-6. Code typed by any user syncs to all others in real-time
-7. Users can run code via the compiler panel (16 languages supported)
-8. Users can copy Room ID to share with others
-9. On leaving or closing the tab, all users are notified
+```json
+{
+  "code": "console.log('Hello, world!')",
+  "language": "javascript"
+}
 ```
 
----
+## Socket Events
+- `join`: client joins a room
+- `joined`: broadcast when a collaborator joins
+- `room-state`: initial room code and language for the joining client
+- `code-change`: synchronize editor content
+- `language-change`: synchronize selected language
+- `disconnected`: notify room members when someone leaves
 
-## 🌐 Deployment with ngrok
+## Notes
+- The backend serves the React build in production.
+- Wandbox availability affects compilation responses.
+- The current language list includes JavaScript, Python, Java, C++, C, Go, Rust, and PHP.
 
-For quick sharing without deploying to a cloud service:
-
-1. Set `client/.env` → `REACT_APP_BACKEND_URL=` (empty)
-2. Build the frontend: `cd client && npm run build`
-3. Start the server: `cd server && npm start`
-4. Run ngrok: `ngrok http 5000`
-5. Share the ngrok URL — everything runs on one port!
-
----
-
-## 📌 Future Improvements
-
-* 💬 Real-time chat system
-* 🔐 User authentication (login/signup)
-* 💾 Save & load projects with MongoDB
-* 🌙 Dark/light theme toggle
-* 🎥 Video/voice collaboration
-* 🤖 AI code suggestions
-* 📜 Version history (like Git)
-* 📁 File sharing support
-
----
+## Future Improvements
+- Authentication and protected rooms
+- Chat alongside the editor
+- File tree and multi-file projects
+- Cursor presence and selection highlights
+- Saved execution history
+- Judge0 support as an alternative compiler provider

@@ -1,95 +1,94 @@
-import React, { useState } from "react";
-import { v4 as uuid } from "uuid";
-import toast from "react-hot-toast";
+import React, { useMemo, useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
 
 function Home() {
   const [roomId, setRoomId] = useState("");
-  const [username, setUsername] = useState("");
-
+  const [username, setUsername] = useState(sessionStorage.getItem("username") || "");
+  const [isCreatingRoom, setIsCreatingRoom] = useState(false);
   const navigate = useNavigate();
 
-  const generateRoomId = (e) => {
-    e.preventDefault();
-    const Id = uuid();
-    setRoomId(Id);
-    toast.success("Room Id is generated");
+  const helperText = useMemo(() => {
+    return roomId ? "Join an existing room with your teammate." : "Create a room and start collaborating instantly.";
+  }, [roomId]);
+
+  const createRoom = async () => {
+    setIsCreatingRoom(true);
+    try {
+      const response = await axios.post(`${API_BASE_URL}/rooms`);
+      setRoomId(response.data.roomId);
+      toast.success("New room created");
+    } catch (error) {
+      console.error(error);
+      toast.error("Unable to create a room right now");
+    } finally {
+      setIsCreatingRoom(false);
+    }
   };
 
   const joinRoom = () => {
-    if (!roomId || !username) {
-      toast.error("Both the field is requried");
+    if (!username.trim() || !roomId.trim()) {
+      toast.error("Username and room ID are required");
       return;
     }
 
-    // redirect
-    navigate(`/editor/${roomId}`, {
+    sessionStorage.setItem("username", username.trim());
+
+    navigate(`/editor/${roomId.trim()}`, {
       state: {
-        username,
+        username: username.trim(),
       },
     });
-    toast.success("room is created");
   };
 
-  // when enter then also join
-  const handleInputEnter = (e) => {
-    if (e.code === "Enter") {
+  const handleEnter = (event) => {
+    if (event.key === "Enter") {
       joinRoom();
     }
   };
 
   return (
-    <div className="container-fluid">
-      <div className="row justify-content-center align-items-center min-vh-100">
-        <div className="col-12 col-md-6">
-          <div className="card shadow-sm p-2 mb-5 bg-secondary rounded">
-            <div className="card-body text-center bg-dark">
-              <img
-                src="/images/codecast.png"
-                alt="Logo"
-                className="img-fluid mx-auto d-block"
-                style={{ maxWidth: "150px" }}
-              />
-              <h4 className="card-title text-light mb-4">Enter the ROOM ID</h4>
+    <div className="home-shell">
+      <div className="home-card">
+        <div className="brand-block">
+          <p className="eyebrow">MERN + Socket.IO</p>
+          <h1>Online Code Collaboration Platform</h1>
+          <p className="subtitle">
+            Create a secure room, invite collaborators, code together in real time, and run code from the same workspace.
+          </p>
+        </div>
 
-              <div className="form-group">
-                <input
-                  type="text"
-                  value={roomId}
-                  onChange={(e) => setRoomId(e.target.value)}
-                  className="form-control mb-2"
-                  placeholder="ROOM ID"
-                  onKeyUp={handleInputEnter}
-                />
-              </div>
-              <div className="form-group">
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="form-control mb-2"
-                  placeholder="USERNAME"
-                  onKeyUp={handleInputEnter}
-                />
-              </div>
-              <button
-                onClick={joinRoom}
-                className="btn btn-success btn-lg btn-block"
-              >
-                JOIN
-              </button>
-              <p className="mt-3 text-light">
-                Don't have a room ID? create{" "}
-                <span
-                  onClick={generateRoomId}
-                  className=" text-success p-2"
-                  style={{ cursor: "pointer" }}
-                >
-                  {" "}
-                  New Room
-                </span>
-              </p>
-            </div>
+        <div className="form-panel">
+          <label htmlFor="username">Username</label>
+          <input
+            id="username"
+            type="text"
+            value={username}
+            placeholder="Enter your name"
+            onChange={(event) => setUsername(event.target.value)}
+            onKeyDown={handleEnter}
+          />
+
+          <label htmlFor="roomId">Room ID</label>
+          <input
+            id="roomId"
+            type="text"
+            value={roomId}
+            placeholder="Paste a room ID or create one"
+            onChange={(event) => setRoomId(event.target.value)}
+            onKeyDown={handleEnter}
+          />
+
+          <p className="helper-text">{helperText}</p>
+
+          <div className="action-row">
+            <button className="primary-button" onClick={joinRoom}>Join Room</button>
+            <button className="secondary-button" onClick={createRoom} disabled={isCreatingRoom}>
+              {isCreatingRoom ? "Creating..." : "Create Room"}
+            </button>
           </div>
         </div>
       </div>
